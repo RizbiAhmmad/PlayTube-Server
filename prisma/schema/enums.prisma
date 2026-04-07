@@ -4,9 +4,30 @@ enum Role {
   USER
 }
 
-
 enum UserStatus {
   ACTIVE
   BLOCKED
   DELETED
+}
+
+enum MediaType {
+  MOVIE
+  SERIES
+}
+
+enum PricingType {
+  FREE
+  PREMIUM
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PaymentType {
+  PURCHASE
+  RENT
+  SUBSCRIPTION
 }
