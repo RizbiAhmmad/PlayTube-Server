@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { IRequestUser } from "../../interfaces/requestUser";
 import { catchAsync } from "../../shared/catchAsync";
 import { AuthService } from "./auth.service";
 import { sendResponse } from "../../shared/sendResponse";
@@ -10,14 +11,14 @@ import AppError from "../../errorHelpers/AppError";
 import { CookieUtils } from "../../utils/cookie";
 import { auth } from "../../lib/auth";
 
-const registerPatient = catchAsync(async (req: Request, res: Response) => {
+const registerUser = catchAsync(async (req: Request, res: Response) => {
   const maxAge = ms(envVars.ACCESS_TOKEN_EXPIRES_IN as StringValue);
   console.log({ maxAge });
   const payload = req.body;
 
   console.log(payload);
 
-  const result = await AuthService.registerPatient(payload);
+  const result = await AuthService.registerUser(payload);
 
   const { accessToken, refreshToken, token, ...rest } = result;
 
@@ -28,7 +29,7 @@ const registerPatient = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     httpStatusCode: status.CREATED,
     success: true,
-    message: "Patient registered successfully",
+    message: "User registered successfully",
     data: {
       token,
       accessToken,
@@ -61,7 +62,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getMe = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user;
+  const user = (req as Request & { user: IRequestUser }).user;
   console.log({ user });
   const result = await AuthService.getMe(user);
   sendResponse(res, {
@@ -151,38 +152,38 @@ const logoutUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const verifyEmail = catchAsync(async (req: Request, res: Response) => {
-  const { email, otp } = req.body;
-  await AuthService.verifyEmail(email, otp);
+// const verifyEmail = catchAsync(async (req: Request, res: Response) => {
+//   const { email, otp } = req.body;
+//   await AuthService.verifyEmail(email, otp);
 
-  sendResponse(res, {
-    httpStatusCode: status.OK,
-    success: true,
-    message: "Email verified successfully",
-  });
-});
+//   sendResponse(res, {
+//     httpStatusCode: status.OK,
+//     success: true,
+//     message: "Email verified successfully",
+//   });
+// });
 
-const forgetPassword = catchAsync(async (req: Request, res: Response) => {
-  const { email } = req.body;
-  await AuthService.forgetPassword(email);
+// const forgetPassword = catchAsync(async (req: Request, res: Response) => {
+//   const { email } = req.body;
+//   await AuthService.forgetPassword(email);
 
-  sendResponse(res, {
-    httpStatusCode: status.OK,
-    success: true,
-    message: "Password reset OTP sent to email successfully",
-  });
-});
+//   sendResponse(res, {
+//     httpStatusCode: status.OK,
+//     success: true,
+//     message: "Password reset OTP sent to email successfully",
+//   });
+// });
 
-const resetPassword = catchAsync(async (req: Request, res: Response) => {
-  const { email, otp, newPassword } = req.body;
-  await AuthService.resetPassword(email, otp, newPassword);
+// const resetPassword = catchAsync(async (req: Request, res: Response) => {
+//   const { email, otp, newPassword } = req.body;
+//   await AuthService.resetPassword(email, otp, newPassword);
 
-  sendResponse(res, {
-    httpStatusCode: status.OK,
-    success: true,
-    message: "Password reset successfully",
-  });
-});
+//   sendResponse(res, {
+//     httpStatusCode: status.OK,
+//     success: true,
+//     message: "Password reset successfully",
+//   });
+// });
 
 const googleLogin = catchAsync((req: Request, res: Response) => {
   const redirectPath = req.query.redirect || "/dashboard";
@@ -240,16 +241,16 @@ const handleOAuthError = catchAsync((req: Request, res: Response) => {
 });
 
 export const AuthController = {
-  registerPatient,
+  registerUser,
   loginUser,
   getMe,
   getNewToken,
   changePassword,
   logoutUser,
-  verifyEmail,
-  forgetPassword,
-  resetPassword,
   googleLogin,
   googleLoginSuccess,
   handleOAuthError,
+  // verifyEmail,
+  // forgetPassword,
+  // resetPassword,
 };
