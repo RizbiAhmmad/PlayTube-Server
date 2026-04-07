@@ -1,5 +1,6 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import { envVars } from './app/config/env';
 import { toNodeHandler } from 'better-auth/node';
 import { auth } from './app/lib/auth';
@@ -9,6 +10,7 @@ const app: Application = express();
 
 // parsers
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors({
     origin : [envVars.FRONTEND_URL, envVars.BETTER_AUTH_URL, "http://localhost:3000", "http://localhost:5000"],
     credentials : true,
