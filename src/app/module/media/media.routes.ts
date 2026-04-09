@@ -10,7 +10,7 @@ const router = Router();
 
 router.post(
   "/",
-  checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.USER),
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
   multerUpload.single("file"),
   validateRequest(MediaValidation.createMediaZodSchema as any),
   MediaController.createMedia,
