@@ -21,6 +21,9 @@ model User {
   admin         Admin?
 
   @@unique([email])
+  @@index([role])
+  @@index([status])
+  @@index([isDeleted])
   @@map("user")
 }
 

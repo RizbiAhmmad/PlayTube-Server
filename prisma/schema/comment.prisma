@@ -13,4 +13,8 @@ model Comment {
   replies   Comment[] @relation("CommentToReply")
 
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([reviewId])
+  @@index([parentId])
 }

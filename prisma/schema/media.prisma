@@ -19,4 +19,9 @@ model Media {
 
   reviews     Review[]
   watchlists  Watchlist[]
+
+  @@index([title])
+  @@index([type])
+  @@index([releaseYear])
+  @@index([pricingType])
 }
