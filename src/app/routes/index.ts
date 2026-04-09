@@ -5,6 +5,7 @@ import { MediaRoutes } from "../module/media/media.routes";
 import { ReviewRoutes } from "../module/review/review.routes";
 import { WatchlistRoutes } from "../module/watchlist/watchlist.routes";
 import { LikeRoutes } from "../module/like/like.routes";
+import { CommentRoutes } from "../module/comment/comment.routes";
 
 const router = Router();
 
@@ -14,6 +15,8 @@ router.use("/media", MediaRoutes);
 router.use("/reviews", ReviewRoutes);
 router.use("/watchlist", WatchlistRoutes);
 router.use("/likes", LikeRoutes);
+router.use("/comments", CommentRoutes);
+
 
 
 
