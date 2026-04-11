@@ -2,8 +2,10 @@
 import Stripe from "stripe";
 import { PaymentStatus } from "../../../generated/prisma/client";
 import { uploadFileToCloudinary } from "../../config/cloudinary.config";
+import { envVars } from "../../config/env";
 import { stripe } from "../../config/stripe.config";
 import { prisma } from "../../lib/prisma";
+import { sendEmail } from "../../utils/email";
 import { generateInvoicePdf } from "./payment.utils";
 
 const createCheckoutSession = async (payload: { userId: string; mediaId?: string; amount: number; paymentType: 'PURCHASE' | 'RENT' | 'SUBSCRIPTION' }) => {
@@ -141,7 +143,36 @@ const handleStripeWebhookEvent = async (event: Stripe.Event) => {
                 }
             });
 
-            // TODO: Send invoice email to user
+            // Send invoice email to user
+            if (session.payment_status === "paid") {
+                try {
+                    await sendEmail({
+                        to: user.email,
+                        subject: `Payment Confirmation & Invoice - PlayTube`,
+                        templateName: "invoice",
+                        templateData: {
+                            userName: user.name,
+                            invoiceId: `INV-${Date.now()}`,
+                            transactionId: transactionId,
+                            paymentDate: new Date().toLocaleDateString(),
+                            mediaTitle: media?.title,
+                            amount: session.amount_total / 100,
+                            invoiceUrl: invoiceUrl,
+                            frontendUrl: envVars.FRONTEND_URL
+                        },
+                        attachments: pdfBuffer ? [
+                            {
+                                filename: `Invoice-${transactionId}.pdf`,
+                                content: pdfBuffer,
+                                contentType: 'application/pdf'
+                            }
+                        ] : []
+                    });
+                    console.log(`✅ Invoice email sent to ${user.email}`);
+                } catch (emailError) {
+                    console.error("❌ Error sending invoice email:", emailError);
+                }
+            }
             
             console.log(`✅ Payment ${session.payment_status} for user ${userId}`);
             break;
