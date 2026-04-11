@@ -8,6 +8,8 @@ import { IndexRoutes } from "./app/routes";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
 import qs from "qs";
+import { PaymentController } from "./app/module/payment/payment.controller";
+
 
 
 const app: Application = express();
@@ -16,6 +18,9 @@ app.set("query parser", (str: string) => qs.parse(str));
 
 app.use(express.urlencoded({ extended: true }));
 
+
+// Stripe Webhook (must be before express.json())
+app.post("/webhook", express.raw({ type: "application/json" }), PaymentController.handleStripeWebhookEvent);
 
 // parsers
 app.use(express.json());

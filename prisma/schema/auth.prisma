@@ -19,6 +19,7 @@ model User {
   reviews       Review[]
   watchlists    Watchlist[]
   admin         Admin?
+  payments      Payment[]
 
   @@unique([email])
   @@index([role])

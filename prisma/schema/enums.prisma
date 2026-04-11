@@ -31,3 +31,9 @@ enum PaymentType {
   RENT
   SUBSCRIPTION
 }
+
+enum PaymentStatus {
+  PAID
+  UNPAID
+  FAILED
+}

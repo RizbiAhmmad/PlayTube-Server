@@ -19,6 +19,7 @@ model Media {
 
   reviews     Review[]
   watchlists  Watchlist[]
+  payments    Payment[]
 
   @@index([title])
   @@index([type])
