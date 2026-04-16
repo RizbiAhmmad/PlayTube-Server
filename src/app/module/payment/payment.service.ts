@@ -57,6 +57,8 @@ const createCheckoutSession = async (payload: { userId: string; mediaId?: string
 };
 
 const handleStripeWebhookEvent = async (event: Stripe.Event) => {
+    console.log(`🔔 Webhook received: ${event.type} (ID: ${event.id})`);
+    
     const existingPayment = await prisma.payment.findFirst({
         where: {
             stripeEventId: event.id
@@ -71,6 +73,7 @@ const handleStripeWebhookEvent = async (event: Stripe.Event) => {
     switch (event.type) {
         case "checkout.session.completed": {
             const session = event.data.object as any;
+            console.log("📦 Checkout Session Completed Metadata:", session.metadata);
 
             const userId = session.metadata?.userId;
             const mediaId = session.metadata?.mediaId;
@@ -129,7 +132,8 @@ const handleStripeWebhookEvent = async (event: Stripe.Event) => {
                 }
             }
 
-            await prisma.payment.create({
+            console.log("💾 Saving payment record to database...");
+            const paymentRecord = await prisma.payment.create({
                 data: {
                     amount: session.amount_total / 100,
                     transactionId: transactionId,
@@ -142,6 +146,7 @@ const handleStripeWebhookEvent = async (event: Stripe.Event) => {
                     mediaId: mediaId || null
                 }
             });
+            console.log("✅ Payment record saved:", paymentRecord.id);
 
             // Send invoice email to user
             if (session.payment_status === "paid") {

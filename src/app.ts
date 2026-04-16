@@ -1,30 +1,38 @@
-import express, { Application, Request, Response } from "express";
-import cors from "cors";
-import cookieParser from "cookie-parser";
-import { envVars } from "./app/config/env";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { toNodeHandler } from "better-auth/node";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import express, { Application, Request, Response } from "express";
+import qs from "qs";
+import { envVars } from "./app/config/env";
 import { auth } from "./app/lib/auth";
-import { IndexRoutes } from "./app/routes";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
-import qs from "qs";
 import { PaymentController } from "./app/module/payment/payment.controller";
-
-
+import { IndexRoutes } from "./app/routes";
 
 const app: Application = express();
 
 app.set("query parser", (str: string) => qs.parse(str));
 
-app.use(express.urlencoded({ extended: true }));
+// Global request logger for debugging
+app.use((req, res, next) => {
+  console.log(`🚀 [${req.method}] ${req.url}`);
+  next();
+});
 
+// 1. Stripe Webhook (MUST be at the very top, before any body-parsing middleware)
+app.get("/test-webhook", (req, res) => {
+  res.send("Webhook route is reachable!");
+});
 
-// Stripe Webhook (must be before express.json())
-app.post("/webhook", express.raw({ type: "application/json" }), PaymentController.handleStripeWebhookEvent);
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  PaymentController.handleStripeWebhookEvent,
+);
 
-// parsers
-app.use(express.json());
-app.use(cookieParser());
+// 2. CORS and Auth
 app.use(
   cors({
     origin: [
@@ -39,9 +47,14 @@ app.use(
   }),
 );
 
-// application routes
 app.use("/api/auth", toNodeHandler(auth));
 
+// 3. General Parsers (These must come AFTER the /webhook route)
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cookieParser());
+
+// application routes
 app.use("/api/v1", IndexRoutes);
 
 app.get("/", (req: Request, res: Response) => {
