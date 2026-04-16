@@ -10,7 +10,6 @@ import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../config/env";
 import { IChangePasswordPayload } from "./auth.interface";
 import { IRequestUser } from "../../interfaces/requestUser";
-// import { prisma } from "../../lib/prisma";
 
 interface IRegisterUserPayload {
   name: string;
@@ -360,7 +359,6 @@ const logoutUser = async (sessionToken: string) => {
 // };
 
 const googleLoginSuccess = async (session: Record<string, any>) => {
-
   const accessToken = tokenUtils.getAccessToken({
     userId: session.user.id,
     role: session.user.role,
@@ -390,5 +388,4 @@ export const AuthService = {
   // verifyEmail,
   // forgetPassword,
   // resetPassword,
-  
 };
