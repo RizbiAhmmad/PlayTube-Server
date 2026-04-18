@@ -17,6 +17,18 @@ const getDashboardStatsData = catchAsync(async (req: Request, res: Response) => 
     })
 });
 
+const getAnalyticsData = catchAsync(async (req: Request, res: Response) => {
+    const result = await StatsService.getAnalyticsData();
+
+    sendResponse(res, {
+        httpStatusCode: status.OK,
+        success: true,
+        message: "Analytics data retrieved successfully!",
+        data: result
+    })
+});
+
 export const StatsController = {
-    getDashboardStatsData
+    getDashboardStatsData,
+    getAnalyticsData
 }

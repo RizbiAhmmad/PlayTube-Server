@@ -11,5 +11,11 @@ router.get(
     StatsController.getDashboardStatsData
 )
 
+router.get(
+    '/analytics',
+    checkAuth(Role.SUPER_ADMIN, Role.ADMIN),
+    StatsController.getAnalyticsData
+)
+
 
 export const StatsRoutes = router;

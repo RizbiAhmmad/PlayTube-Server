@@ -43,8 +43,9 @@ export const uploadFileToCloudinary = async (
         cloudinary.uploader.upload_stream(
             {
                 resource_type: "auto",
-                public_id: `playtube/${folder}/${uniqueName}`,
+                public_id: uniqueName,
                 folder : `playtube/${folder}`,
+                access_mode: "public"
             },
             (error, result) => {
                 if(error){

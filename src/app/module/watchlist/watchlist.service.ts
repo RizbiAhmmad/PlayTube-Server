@@ -7,7 +7,16 @@ const addToWatchlist = async (userId: string, mediaId: string) => {
       mediaId,
     },
     include: {
-      media: true,
+      media: {
+        select: {
+          id: true,
+          title: true,
+          type: true,
+          releaseYear: true,
+          thumbnail: true,
+          trailerUrl: true
+        }
+      },
     },
   });
   return result;
@@ -19,7 +28,16 @@ const getWatchlistByUser = async (userId: string) => {
       userId,
     },
     include: {
-      media: true,
+      media: {
+        select: {
+          id: true,
+          title: true,
+          type: true,
+          releaseYear: true,
+          thumbnail: true,
+          trailerUrl: true
+        }
+      },
     },
     orderBy: {
       createdAt: "desc",
