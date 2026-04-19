@@ -19,7 +19,7 @@ export const checkAuth =
       );
 
       if (!sessionToken) {
-        throw new Error("Unauthorized access! No session token provided.");
+        throw new AppError(status.UNAUTHORIZED, "Unauthorized access! No session token provided.");
       }
 
       if (sessionToken) {
@@ -115,6 +115,15 @@ export const checkAuth =
           status.UNAUTHORIZED,
           "Unauthorized access! Invalid access token.",
         );
+      }
+
+      // If req.user is not set by session, set it from JWT
+      if (!req.user) {
+        req.user = {
+          userId: verifiedToken.data!.userId,
+          role: verifiedToken.data!.role as Role,
+          email: verifiedToken.data!.email,
+        };
       }
 
       if (

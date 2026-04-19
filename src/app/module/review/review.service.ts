@@ -22,6 +22,10 @@ const getAllReviews = async (query: Record<string, any>) => {
     .filter()
     .sort()
     .paginate()
+    .include({
+      user: { select: { id: true, name: true, email: true } },
+      media: { select: { id: true, title: true, thumbnail: true, type: true } },
+    })
     .fields();
 
   const result = await reviewQuery.execute();
@@ -50,10 +54,40 @@ const updateReview = async (
   return result;
 };
 
-const deleteReview = async (id: string): Promise<Review> => {
-  const result = await prisma.review.delete({
-    where: { id },
+const getMyReviews = async (userId: string) => {
+  const result = await prisma.review.findMany({
+    where: { userId },
+    include: {
+      media: {
+        select: { id: true, title: true, thumbnail: true, type: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
   });
+  return result;
+};
+
+const getReviewsByMedia = async (mediaId: string) => {
+  const result = await prisma.review.findMany({
+    where: { mediaId, status: "APPROVED" },
+    include: {
+      user: { select: { id: true, name: true, email: true } },
+      _count: { select: { likes: true, comments: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  return result;
+};
+
+const deleteReview = async (id: string, userId?: string): Promise<Review> => {
+  if (userId) {
+    // Users can only delete their own PENDING reviews
+    const review = await prisma.review.findUnique({ where: { id } });
+    if (!review) throw new Error("Review not found");
+    if (review.userId !== userId) throw new Error("Not authorized");
+    if (review.status === "APPROVED") throw new Error("Cannot delete an approved review");
+  }
+  const result = await prisma.review.delete({ where: { id } });
   return result;
 };
 
@@ -61,6 +95,8 @@ export const ReviewService = {
   createReview,
   getAllReviews,
   getReviewById,
+  getMyReviews,
+  getReviewsByMedia,
   updateReview,
   deleteReview,
 };
