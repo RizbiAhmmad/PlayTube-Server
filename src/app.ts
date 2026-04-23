@@ -11,6 +11,7 @@ import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
 import { PaymentController } from "./app/module/payment/payment.controller";
 import { IndexRoutes } from "./app/routes";
+import { requestLogger } from "./app/middleware/requestLogger";
 
 const app: Application = express();
 
@@ -19,11 +20,13 @@ app.set("views", path.join(process.cwd(), "src/app/templates"));
 
 app.set("query parser", (str: string) => qs.parse(str));
 
+app.use(requestLogger);
+
 // Global request logger for debugging
-app.use((req, res, next) => {
-  console.log(`🚀 [${req.method}] ${req.url}`);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(`🚀 [${req.method}] ${req.url}`);
+//   next();
+// });
 
 // 1. Stripe Webhook (MUST be at the very top, before any body-parsing middleware)
 app.get("/test-webhook", (req, res) => {

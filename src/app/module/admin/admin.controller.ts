@@ -17,6 +17,19 @@ const getAllAdmins = catchAsync(
     }
 )
 
+const getAllUsers = catchAsync(
+    async (req: Request, res: Response) => {
+        const result = await AdminService.getAllUsers();
+
+        sendResponse(res, {
+            httpStatusCode: status.OK,
+            success: true,
+            message: "Users fetched successfully",
+            data: result,
+        })
+    }
+)
+
 const getAdminById = catchAsync(
     async (req: Request, res: Response) => {
         const { id } = req.params;
@@ -65,6 +78,22 @@ const deleteAdmin = catchAsync(
 
 )
 
+const deleteUser = catchAsync(
+    async (req: Request, res: Response) => {
+        const { id } = req.params;
+        const adminUser = req.user;
+
+        const result = await AdminService.deleteUser(id as string, adminUser);
+
+        sendResponse(res, {
+            httpStatusCode: status.OK,
+            success: true,
+            message: "User deleted successfully",
+            data: result,
+        })
+    }
+)
+
 const changeUserStatus = catchAsync(
     async (req: Request, res: Response) => {
         const user = req.user;
@@ -99,5 +128,7 @@ export const AdminController = {
     deleteAdmin,
     getAdminById,
     changeUserStatus,
-    changeUserRole
+    changeUserRole,
+    getAllUsers,
+    deleteUser
 };

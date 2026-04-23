@@ -18,17 +18,57 @@ const getAllMedia = async (query: Record<string, any>) => {
     .filter()
     .sort()
     .paginate()
+    .include({
+      reviews: {
+        where: { status: "APPROVED" },
+        select: { rating: true },
+      },
+    })
     .fields();
 
   const result = await mediaQuery.execute();
-  return result;
+
+  // Add averageRating and reviewCount to each media item
+  const data = (result.data as any[]).map((media) => {
+    const reviews = media.reviews || [];
+    const totalRating = reviews.reduce((sum: number, r: any) => sum + r.rating, 0);
+    const averageRating = reviews.length > 0 ? (totalRating / reviews.length).toFixed(1) : "0.0";
+    
+    return {
+      ...media,
+      averageRating: parseFloat(averageRating as string),
+      reviewCount: reviews.length,
+    };
+  });
+
+  return {
+    meta: result.meta,
+    data,
+  };
 };
 
-const getMediaById = async (id: string): Promise<Media | null> => {
+const getMediaById = async (id: string) => {
   const media = await prisma.media.findUnique({
     where: { id },
+    include: {
+      reviews: {
+        where: { status: "APPROVED" },
+        select: { rating: true },
+      },
+    },
   });
-  return media;
+
+  if (!media) return null;
+
+  const reviews = (media as any).reviews || [];
+  const totalRating = reviews.reduce((sum: number, r: any) => sum + r.rating, 0);
+  const averageRating = reviews.length > 0 ? (totalRating / reviews.length).toFixed(1) : "0.0";
+
+  return {
+    ...media,
+    averageRating: parseFloat(averageRating as string),
+    reviewCount: reviews.length,
+  };
 };
 
 const updateMedia = async (
