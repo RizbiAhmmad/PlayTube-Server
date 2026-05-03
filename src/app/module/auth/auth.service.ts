@@ -381,6 +381,30 @@ const googleLoginSuccess = async (session: Record<string, any>) => {
   };
 };
 
+const updateProfile = async (
+  user: IRequestUser,
+  payload: Partial<{ name: string; image: string }>,
+) => {
+  const isUserExists = await prisma.user.findUnique({
+    where: {
+      id: user.userId,
+    },
+  });
+
+  if (!isUserExists) {
+    throw new AppError(status.NOT_FOUND, "User not found");
+  }
+
+  const result = await prisma.user.update({
+    where: {
+      id: user.userId,
+    },
+    data: payload,
+  });
+
+  return result;
+};
+
 export const AuthService = {
   registerUser,
   loginUser,
@@ -392,4 +416,5 @@ export const AuthService = {
   verifyEmail,
   forgetPassword,
   resetPassword,
+  updateProfile,
 };

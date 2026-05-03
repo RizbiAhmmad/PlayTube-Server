@@ -240,6 +240,20 @@ const handleOAuthError = catchAsync((req: Request, res: Response) => {
   res.redirect(`${envVars.FRONTEND_URL}/login?error=${error}`);
 });
 
+const updateProfile = catchAsync(async (req: Request, res: Response) => {
+  const user = (req as Request & { user: IRequestUser }).user;
+  const payload = req.file?.path
+    ? { ...req.body, image: req.file.path }
+    : req.body;
+  const result = await AuthService.updateProfile(user, payload);
+  sendResponse(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "User profile updated successfully",
+    data: result,
+  });
+});
+
 export const AuthController = {
   registerUser,
   loginUser,
@@ -253,4 +267,5 @@ export const AuthController = {
   verifyEmail,
   forgetPassword,
   resetPassword,
+  updateProfile,
 };

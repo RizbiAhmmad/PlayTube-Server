@@ -2,6 +2,7 @@ import { Router } from "express";
 import { AuthController } from "./auth.controller";
 import { checkAuth } from "../../middleware/checkAuth";
 import { Role } from "../../../generated/prisma/enums";
+import { multerUpload } from "../../config/multer.config";
 
 const router = Router();
 
@@ -31,5 +32,11 @@ router.get("/oauth/error", AuthController.handleOAuthError);
 router.post("/verify-email", AuthController.verifyEmail);
 router.post("/forget-password", AuthController.forgetPassword);
 router.post("/reset-password", AuthController.resetPassword);
+router.patch(
+  "/update-profile",
+  checkAuth(Role.SUPER_ADMIN, Role.ADMIN, Role.USER),
+  multerUpload.single("file"),
+  AuthController.updateProfile,
+);
 
 export const AuthRoutes = router;
